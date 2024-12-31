@@ -1,57 +1,137 @@
 <!DOCTYPE html>
- <html lang="en">
- <head>
-     <meta charset="UTF-8">
-     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css">
-     <title>Admin Section</title>
- </head>
- <body>
-     <div class="container mt-5">
-         <h1 class="text-center">Admin Section</h1>
-         <form method="POST" action="/admin">
-             <div class="mt-3">
-                 <input type="date" class="form-control" name="date" placeholder="Enter date (dd-mm-yy)">
-             </div>
-             <div class="mt-3">
-                 <label for="session">Session</label>
-                 <select class="form-control" id="session" name="session">
-                    <option value="morning">Morning Session</option>
-                     <option value="evening">Evening Session</option>
-                 </select>
-             </div>
-             <div class="mt-3">
-                 <button type="submit" class="btn btn-primary">View Data</button>
-             </div>
-             <div class="d-flex justify-content-end">
-                <a href="/logout" class="btn btn-danger">Logout</a>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="flex-grow-1 text-center">
+            <h1 class="text-dark m-0">Admin Dashboard</h1>
+        </div>
+        <a href="/logout" class="btn btn-danger ms-3">Logout</a>
+    </div>
+    
+        
+       <!-- View Attendance for All Students -->
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+                <h2 class="h5">View Attendance for All Students</h2>
             </div>
-         </form>
-         {% if attendance %}
-         <div class="mt-5">
-             <h3>Attendance for {{ date }} - {{ session.capitalize() }} Session</h3>
-             <table class="table table-bordered">
-                 <thead>
-                     <tr>
-                         <th>Date</th>
-                         <th>Name</th>
-                         <th>Work</th>
-                         <th>Submitted Time</th>
-                     </tr>
-                 </thead>
-                 <tbody>
-                     {% for item in attendance %}
-                     <tr>
-                        <td>{{ item.date }}</td>
-                         <td>{{ item.name }}</td>
-                         <td>{{ item.work }}</td>
-                         <td>{{ item.submitted_time }}</td>
-                     </tr>
-                     {% endfor %}
-                 </tbody>
-             </table>
-         </div>
-         {% endif %}
-     </div>
- </body>
- </html>
+            <div class="card-body">
+                <form method="POST" class="row g-3">
+                    <div class="col-md-6">
+                        <label for="all_view_date" class="form-label">Date</label>
+                        <input type="date" name="all_view_date" id="all_view_date" class="form-control" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="all_view_session" class="form-label">Session</label>
+                        <select name="all_view_session" id="all_view_session" class="form-select" required>
+                            <option value="morning">Morning</option>
+                            <option value="evening">Evening</option>
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary">View Attendance</button>
+                    </div>
+                </form>
+                {% if all_attendance %}
+                <h3 class="mt-4">Attendance for All Students</h3>
+                <table class="table table-bordered mt-3">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Date</th>
+                            <th>Name</th>
+                            <th>Work</th>
+                            <th>Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for record in all_attendance %}
+                        <tr>
+                            <td>{{ record.date }}</td>
+                            <td>{{ record.name }}</td>
+                            <td>{{ record.work_started_on or record.work_done_on }}</td>
+                            <td>{{ record.morning_submitted_time or record.evening_submitted_time }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- View Statistics or Attendance for a Specific Student -->
+        <div class="card mb-4">
+            <div class="card-header bg-secondary text-white">
+                <h2 class="h5">View Statistics or Attendance for a Specific Student</h2>
+            </div>
+            <div class="card-body">
+                <form method="POST" class="row g-3">
+                    <div class="col-md-6">
+                        <label for="specific_student" class="form-label">Student</label>
+                        <select name="specific_student" id="specific_student" class="form-select" required>
+                            {% for student in student_names %}
+                            <option value="{{ student }}">{{ student }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="start_date" class="form-label">Start Date</label>
+                        <input type="date" name="start_date" id="start_date" class="form-control" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="end_date" class="form-label">End Date</label>
+                        <input type="date" name="end_date" id="end_date" class="form-control" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="specific_action" class="form-label">Action</label>
+                        <select name="specific_action" id="specific_action" class="form-select" required>
+                            <option value="view_statistics">View Statistics</option>
+                            <option value="view_attendance">View Attendance</option>
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-success">Submit</button>
+                    </div>
+                </form>
+                {% if statistics %}
+                <h3 class="mt-4">Statistics</h3>
+                <table class="table table-bordered mt-3">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Date</th>
+                            <th>Work Started On</th>
+                            <th>Morning Submitted Time</th>
+                            <th>Work Done On</th>
+                            <th>Evening Submitted Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for stat in statistics %}
+                        <tr>
+                            <td>{{ stat.date }}</td>
+                            <td>{{ stat.work_started_on }}</td>
+                            <td>{{ stat.morning_submitted_time }}</td>
+                            <td>{{ stat.work_done_on }}</td>
+                            <td>{{ stat.evening_submitted_time }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% elif attended_days or absent_days %}
+                <h3 class="mt-4">Attendance Summary</h3>
+                <p class="text-success"><strong>Attended Days:</strong> {{ attended_days }}</p>
+                <p class="text-danger"><strong>Absent Days:</strong> {{ absent_days }}</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
